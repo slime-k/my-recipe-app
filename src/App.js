@@ -1,5 +1,4 @@
 //App.jp
-
 import { useEffect, useState } from "react";
 import Home from "./Home";
 import Login from "./Login";
@@ -14,6 +13,7 @@ const App = () => {
         data: { session },
       } = await supabase.auth.getSession();
       setSession(session);
+      console.log(session);
     };
     getSession();
 

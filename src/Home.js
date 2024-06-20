@@ -1,19 +1,36 @@
-// Home.js
 import { useEffect, useState } from "react";
 import { supabase } from "./supabase";
 
 const Home = () => {
+  const [currentUser, setCurrentUser] = useState(null);
   const [foods, setFoods] = useState([]);
   const [newFood, setNewFood] = useState("");
   const [newExpiryMonth, setNewExpiryMonth] = useState("");
   const [newExpiryDay, setNewExpiryDay] = useState("");
-  const [newExpiryYear, setNewExpiryYear] = useState(""); // 追加
+  const [newExpiryYear, setNewExpiryYear] = useState("");
   const [newFoodCount, setNewFoodCount] = useState("");
   const [sortBy, setSortBy] = useState("registration"); // registration or expiryDate
 
   useEffect(() => {
+    getCurrentUser();
     getFoods();
-  }, [sortBy]);
+  }, []);
+
+  const getCurrentUser = async () => {
+    try {
+      const { user } = supabase.auth.session();
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        // ユーザーがログインしていない場合はログインページにリダイレクト
+        window.location.href = "/login";
+      }
+    } catch (error) {
+      console.error("Error fetching user:", error.message);
+      // ユーザー情報を取得できなかった場合のエラーハンドリング
+      // 通常はログインページにリダイレクトするなどの処理を行う
+    }
+  };
 
   const getFoods = async () => {
     try {
@@ -43,6 +60,7 @@ const Home = () => {
           food_name: newFood,
           expiry_date: formattedExpiryDate,
           food_count: newFoodCount,
+          user_id: currentUser.id, // ユーザーIDを追加
         },
       ]);
       if (error) throw error;
@@ -50,14 +68,14 @@ const Home = () => {
       setNewFood("");
       setNewExpiryMonth("");
       setNewExpiryDay("");
-      setNewExpiryYear(""); // 追加
+      setNewExpiryYear("");
       setNewFoodCount("");
     } catch (error) {
       alert(error.error_description || error.message);
     }
   };
 
-  const editFood = async (name, newName, newExpiry, newCount) => {
+  const editFood = async (id, newName, newExpiry, newCount) => {
     try {
       const { data, error } = await supabase
         .from("foods")
@@ -66,10 +84,11 @@ const Home = () => {
           expiry_date: newExpiry,
           food_count: newCount,
         })
-        .eq("food_name", name);
+        .eq("id", id)
+        .eq("user_id", currentUser.id); // ユーザーIDでフィルタリング
       if (error) throw error;
       const updatedFoods = foods.map((food) => {
-        if (food.food_name === name) {
+        if (food.id === id) {
           return {
             ...food,
             food_name: newName,
@@ -85,14 +104,15 @@ const Home = () => {
     }
   };
 
-  const deleteFood = async (name) => {
+  const deleteFood = async (id) => {
     try {
       const { error } = await supabase
         .from("foods")
         .delete()
-        .eq("food_name", name);
+        .eq("id", id)
+        .eq("user_id", currentUser.id); // ユーザーIDでフィルタリング
       if (error) throw error;
-      const filteredFoods = foods.filter((food) => food.food_name !== name);
+      const filteredFoods = foods.filter((food) => food.id !== id);
       setFoods(filteredFoods);
     } catch (error) {
       alert(error.error_description || error.message);
@@ -173,8 +193,8 @@ const Home = () => {
             </tr>
           </thead>
           <tbody>
-            {foods.map((food, index) => (
-              <tr key={index}>
+            {foods.map((food) => (
+              <tr key={food.id}>
                 <td style={{ border: "1px solid black" }}>{food.food_name}</td>
                 <td style={{ border: "1px solid black" }}>
                   {food.expiry_date}
@@ -184,18 +204,16 @@ const Home = () => {
                   <button
                     onClick={() =>
                       editFood(
-                        food.food_name,
-                        prompt("新しい食材の名前"),
-                        `${newExpiryMonth}/${newExpiryDay}/${newExpiryYear}`,
-                        prompt("新しい個数")
+                        food.id,
+                        prompt("新しい食材の名前", food.food_name),
+                        prompt("新しい消費期限 (YYYY-MM-DD)", food.expiry_date),
+                        prompt("新しい個数", food.food_count)
                       )
                     }
                   >
                     編集
                   </button>
-                  <button onClick={() => deleteFood(food.food_name)}>
-                    削除
-                  </button>
+                  <button onClick={() => deleteFood(food.id)}>削除</button>
                 </td>
               </tr>
             ))}
