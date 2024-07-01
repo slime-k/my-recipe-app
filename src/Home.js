@@ -1,4 +1,3 @@
-// Home.js
 import { useState } from "react";
 import { supabase } from "./supabase";
 
@@ -8,21 +7,49 @@ const Home = () => {
   const [foodCount, setFoodCount] = useState(0);
 
   const insertData = async () => {
-    const { error } = await supabase
-      .from('foods')
-      .insert([{ food_name: foodName, expiry_date: expiryDate, food_count: foodCount }]);
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser(); // 現在のユーザーを取得
+    if (userError) {
+      alert("ユーザー情報の取得に失敗しました: " + userError.message);
+      return;
+    }
 
-    if (error) {
-      console.error("Error inserting data:", error);
-    } else {
-      console.log("Data inserted successfully");
+    if (!user) {
+      alert("ユーザーがログインしていません");
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from("foods").insert([
+        {
+          user_id: user.id, // user_idを追加
+          food_name: foodName,
+          expiry_date: expiryDate,
+          food_count: foodCount,
+        },
+      ]);
+
+      if (error) {
+        throw error;
+      }
+
+      alert("インサートが成功しました！");
+    } catch (error) {
+      alert("インサートに失敗しました: " + error.message);
     }
   };
 
   return (
     <div>
       <h1>Home</h1>
-      <form onSubmit={(e) => { e.preventDefault(); insertData(); }}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          insertData();
+        }}
+      >
         <input
           type="text"
           placeholder="Food Name"
