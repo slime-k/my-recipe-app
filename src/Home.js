@@ -1,5 +1,3 @@
-//Home.js
-
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 
@@ -9,6 +7,10 @@ const Home = () => {
   const [foodCount, setFoodCount] = useState(0);
   const [foodList, setFoodList] = useState([]);
   const [editingFood, setEditingFood] = useState(null);
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "ascending",
+  });
 
   useEffect(() => {
     fetchFoodList();
@@ -36,7 +38,7 @@ const Home = () => {
         .eq("user_id", user.id);
 
       if (error) throw error;
-      setFoodList(data);
+      setFoodList(data.map((item, index) => ({ ...item, order: index + 1 })));
     } catch (error) {
       alert("データの取得に失敗しました: " + error.message);
     }
@@ -137,6 +139,22 @@ const Home = () => {
     }
   };
 
+  const sortedFoodList = [...foodList].sort((a, b) => {
+    if (sortConfig.key === null) return 0;
+    const direction = sortConfig.direction === "ascending" ? 1 : -1;
+    if (a[sortConfig.key] < b[sortConfig.key]) return -1 * direction;
+    if (a[sortConfig.key] > b[sortConfig.key]) return 1 * direction;
+    return 0;
+  });
+
+  const requestSort = (key) => {
+    let direction = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+  };
+
   return (
     <div>
       <h1>Home</h1>
@@ -174,16 +192,39 @@ const Home = () => {
       </form>
 
       <h2>登録済みの食品一覧</h2>
-      <ul>
-        {foodList.map((food) => (
-          <li key={food.record_id}>
-            {food.food_name} - 賞味期限: {food.expiry_date} - 数量:{" "}
-            {food.food_count}
-            <button onClick={() => startEditing(food)}>編集</button>
-            <button onClick={() => deleteFood(food.record_id)}>削除</button>
-          </li>
-        ))}
-      </ul>
+      <div>
+        <button onClick={() => requestSort("order")}>登録順でソート</button>
+        <button onClick={() => requestSort("food_name")}>食品名でソート</button>
+        <button onClick={() => requestSort("expiry_date")}>
+          賞味期限でソート
+        </button>
+        <button onClick={() => requestSort("food_count")}>数量でソート</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>登録順</th>
+            <th>食品名</th>
+            <th>賞味期限</th>
+            <th>数量</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortedFoodList.map((food) => (
+            <tr key={food.record_id}>
+              <td>{food.order}</td>
+              <td>{food.food_name}</td>
+              <td>{food.expiry_date}</td>
+              <td>{food.food_count}</td>
+              <td>
+                <button onClick={() => startEditing(food)}>編集</button>
+                <button onClick={() => deleteFood(food.record_id)}>削除</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
