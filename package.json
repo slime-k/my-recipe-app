@@ -1,15 +1,14 @@
 {
-  "name": "my-recipe-app",
+  "name": "app-dir",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://slime-k.github.io/my-recipe-app/",
   "dependencies": {
-    "@supabase/supabase-js": "^2.43.4",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-hook-form": "^7.51.5",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
@@ -17,7 +16,11 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "rm": "rimraf docs",
+    "mv": "move build docs",
+    "git": "git add . && git commit && git push origin master",
+    "deploy": "npm run rm && npm run build && npm run mv && npm run git"
   },
   "eslintConfig": {
     "extends": [
@@ -36,5 +39,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "rimraf": "^5.0.7"
   }
 }

@@ -1,3 +1,4 @@
+// Home.js
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 
@@ -156,9 +157,11 @@ const Home = () => {
   };
 
   return (
-    <div>
-      <h1>Home</h1>
-      <button onClick={handleLogout}>ログアウト</button>
+    <div className="App-content">
+      <h1 className="App-title">Home</h1>
+      <button className="App-button" onClick={handleLogout}>
+        ログアウト
+      </button>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -166,41 +169,58 @@ const Home = () => {
         }}
       >
         <input
+          className="App-input"
           type="text"
           placeholder="食品名"
           value={foodName}
           onChange={(e) => setFoodName(e.target.value)}
         />
         <input
+          className="App-input"
           type="date"
           placeholder="賞味期限"
           value={expiryDate}
           onChange={(e) => setExpiryDate(e.target.value)}
         />
         <input
+          className="App-input"
           type="number"
           placeholder="数量"
           value={foodCount}
           onChange={(e) => setFoodCount(Number(e.target.value))}
         />
-        <button type="submit">{editingFood ? "更新" : "追加"}</button>
+        <button className="App-button" type="submit">
+          {editingFood ? "更新" : "追加"}
+        </button>
         {editingFood && (
-          <button type="button" onClick={resetForm}>
+          <button className="App-button" type="button" onClick={resetForm}>
             キャンセル
           </button>
         )}
       </form>
 
-      <h2>登録済みの食品一覧</h2>
+      <h2 className="App-title">登録済みの食品一覧</h2>
       <div>
-        <button onClick={() => requestSort("order")}>登録順でソート</button>
-        <button onClick={() => requestSort("food_name")}>食品名でソート</button>
-        <button onClick={() => requestSort("expiry_date")}>
+        <button className="App-button" onClick={() => requestSort("order")}>
+          登録順でソート
+        </button>
+        <button className="App-button" onClick={() => requestSort("food_name")}>
+          食品名でソート
+        </button>
+        <button
+          className="App-button"
+          onClick={() => requestSort("expiry_date")}
+        >
           賞味期限でソート
         </button>
-        <button onClick={() => requestSort("food_count")}>数量でソート</button>
+        <button
+          className="App-button"
+          onClick={() => requestSort("food_count")}
+        >
+          数量でソート
+        </button>
       </div>
-      <table>
+      <table className="App-table">
         <thead>
           <tr>
             <th>登録順</th>
@@ -218,8 +238,18 @@ const Home = () => {
               <td>{food.expiry_date}</td>
               <td>{food.food_count}</td>
               <td>
-                <button onClick={() => startEditing(food)}>編集</button>
-                <button onClick={() => deleteFood(food.record_id)}>削除</button>
+                <button
+                  className="App-button"
+                  onClick={() => startEditing(food)}
+                >
+                  編集
+                </button>
+                <button
+                  className="App-button"
+                  onClick={() => deleteFood(food.record_id)}
+                >
+                  削除
+                </button>
               </td>
             </tr>
           ))}

@@ -1,7 +1,9 @@
+// App.js
 import { useEffect, useState } from "react";
 import Home from "./Home";
 import Login from "./Login";
 import { supabase } from "./supabase";
+import "./App.css";
 
 const App = () => {
   const [session, setSession] = useState(null);
@@ -22,7 +24,14 @@ const App = () => {
     });
   }, []);
 
-  return <div>{session ? <Home /> : <Login />}</div>;
+  return (
+    <div className="App">
+      <header className="App-header">
+        <h1 className="App-title">My Recipe App</h1>
+      </header>
+      <div className="App-content">{session ? <Home /> : <Login />}</div>
+    </div>
+  );
 };
 
 export default App;
