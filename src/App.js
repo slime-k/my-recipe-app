@@ -27,7 +27,7 @@ const App = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <h1 className="App-title">My Recipe App</h1>
+        <h1 className="App-title">Culinary Mate</h1>
       </header>
       <div className="App-content">{session ? <Home /> : <Login />}</div>
     </div>

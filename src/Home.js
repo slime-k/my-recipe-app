@@ -158,7 +158,6 @@ const Home = () => {
 
   return (
     <div className="App-content">
-      <h1 className="App-title">Home</h1>
       <button className="App-button" onClick={handleLogout}>
         ログアウト
       </button>
